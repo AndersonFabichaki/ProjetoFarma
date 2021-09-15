@@ -102,7 +102,14 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\src\client\view\View.Principal.pas">
-            <Form>Form1</Form>
+            <Form>fPrincipal</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\src\client\model\Model.Farma.pas"/>
+        <DCCReference Include="..\src\model\Model.FarmaBase.pas"/>
+        <DCCReference Include="..\src\utils\Utils.Farma.pas"/>
+        <DCCReference Include="..\src\client\view\View.Configuracao.pas">
+            <Form>fConfiguracao</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
@@ -131,7 +138,7 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win32\Debug\ClientFarma.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="ClientFarma.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ClientFarma.exe</RemoteName>
                         <Overwrite>true</Overwrite>

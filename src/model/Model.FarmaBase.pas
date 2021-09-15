@@ -48,6 +48,22 @@ Type
       property Aviso: string read FAviso write FAviso;
    end;
 
+   TModelFarmaPesquisaBase = class (TPersistent)
+   private
+      FdInicio: TDate;
+      FdFinal: TDate;
+      FAviso: string;
+      FOLstFarma: TObjectList<TModelFarmaBase>;
+   public
+      constructor Create;
+      destructor Destroy; override;
+
+      property dInicio: TDate read FdInicio write FdInicio;
+      property dFinal: TDate read FdFinal write FdFinal;
+      property Aviso: string read FAviso write FAviso;
+      property OLstFarma: TObjectList<TModelFarmaBase> read FOLstFarma write FOLstFarma;
+   end;
+
 implementation
 
 uses System.SysUtils;
@@ -62,6 +78,19 @@ end;
 destructor TModelFarmaBase.Destroy;
 begin
    FreeAndNil(FOLstAtencao);
+  inherited;
+end;
+
+{ TModelFarmaPesquisaBase }
+
+constructor TModelFarmaPesquisaBase.Create;
+begin
+   FOLstFarma := TObjectList<TModelFarmaBase>.Create;
+end;
+
+destructor TModelFarmaPesquisaBase.Destroy;
+begin
+   FreeAndNil(FOLstFarma);
   inherited;
 end;
 

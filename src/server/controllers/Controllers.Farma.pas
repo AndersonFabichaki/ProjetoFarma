@@ -32,8 +32,38 @@ begin
 end;
 
 procedure Consultar(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var vFarmaPesq: TModelFarmaPesquisa;
+    vJReq, vJRes: TJSONObject;
+    vUnMarshal: TJSONUnMarshal;
+    vMarshal: TJSONMarshal;
 begin
-   Res.Send('Consulta');
+   try
+      vJReq := Req.Body<TJSONObject>;
+
+      vUnMarshal := TJSONUnMarshal.Create;
+      vMarshal   := TJSONMarshal.Create;
+
+      vFarmaPesq := vUnMarshal.Unmarshal(vJReq) as TModelFarmaPesquisa;
+
+      if vFarmaPesq.Consultar then
+      begin
+         vJRes:=TJSONObject.Create;
+         vJRes.AddPair('Codigo', TJSONNumber.Create(1));
+         vJRes.AddPair('Result', TJSONArray.Create(vMarshal.Marshal(vFarmaPesq) as TJSONObject));
+      end
+      else
+      begin
+         vJRes:=TJSONObject.Create;
+         vJRes.AddPair('Codigo', TJSONNumber.Create(0));
+         vJRes.AddPair('Mensagem', vFarmaPesq.Aviso);
+      end;
+
+      Res.Send<TJSONValue>(vJRes).Status(THTTPStatus.OK);
+   finally
+      vUnMarshal.Free;
+      vMarshal.Free;
+      vFarmaPesq.Free;
+   end;
 end;
 
 procedure Alterar(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -109,7 +139,7 @@ begin
    if not Req.Params.ContainsKey('pId') then
    begin
       vJRes.AddPair('Codigo', TJSONNumber.Create(0));
-      vJRes.AddPair('Mensagem', 'Params pId não localizaco');
+      vJRes.AddPair('Mensagem', 'Params pId não localizado');
    end
    else if TModelFarma.Deletar(Req.Params.Items['pId'].ToInteger, vAviso) then
    begin

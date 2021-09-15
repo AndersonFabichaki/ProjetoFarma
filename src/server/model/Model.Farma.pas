@@ -14,6 +14,12 @@ Type
       class function Deletar(pIdFarma: Integer; out pAvso: string): Boolean;
    end;
 
+   TModelFarmaPesquisa = class (TModelFarmaPesquisaBase)
+   private
+   public
+      function Consultar: Boolean;
+   end;
+
 implementation
 
 uses DAO.Farma;
@@ -33,6 +39,13 @@ end;
 function TModelFarma.Gravar: Boolean;
 begin
    Result := TFarmaDAO.New.Gravar(Self);
+end;
+
+{ TModelFarmaPesquisa }
+
+function TModelFarmaPesquisa.Consultar: Boolean;
+begin
+   Result := TFarmaDAO.New.Consultar(Self);
 end;
 
 end.

@@ -10,6 +10,7 @@ Type
       function Gravar(pFarma: TModelFarma): Boolean;
       function Alterar(pFarma: TModelFarma): Boolean;
       function Deletar(pIdFarma: Integer; out pAvso: string): Boolean;
+      function Consultar(pFarmaPesq: TModelFarmaPesquisa): Boolean;
    end;
 
    TFarmaDAO = class(TInterfacedObject, iFarmaDAO)
@@ -25,6 +26,7 @@ Type
       function Gravar(pFarma: TModelFarma): Boolean;
       function Alterar(pFarma: TModelFarma): Boolean;
       function Deletar(pIdFarma: Integer; out pAvso: string): Boolean;
+      function Consultar(pFarmaPesq: TModelFarmaPesquisa): Boolean;
    end;
 
 implementation
@@ -86,6 +88,55 @@ begin
          dmGeral.CnxSQLite.Commit
       else
          dmGeral.CnxSQLite.Rollback;
+   end;
+end;
+
+function TFarmaDAO.Consultar(pFarmaPesq: TModelFarmaPesquisa): Boolean;
+var vItem: TModelFarmaBase;
+begin
+   Result := False;
+   pFarmaPesq.OLstFarma.Clear;
+
+   try
+      with dmGeral.sqQry, SQL do
+      begin
+         Close;
+         Clear;
+         Add('select id, data_hora, farmaceutico, paciente, observacao, total');
+         Add(' from svc_farma');
+         Add(' where 1=1');
+         if vlData(pFarmaPesq.dInicio) <> '' then
+            Add(' and substr(data_hora, 1, 10)>='+QuotedStr(vlData(pFarmaPesq.dInicio)));
+         if vlData(pFarmaPesq.dFinal) <> '' then
+            Add(' and substr(data_hora, 1, 10)<='+QuotedStr(vlData(pFarmaPesq.dFinal)));
+         Open;
+
+         if not IsEmpty then
+         begin
+            while not Eof do
+            begin
+               vItem := TModelFarmaBase.Create;
+               vItem.Id           := FieldValues['id'];
+               vItem.DataHora     := FieldValues['data_hora'];
+               vItem.Farmaceutico := FieldValues['farmaceutico'];
+               vItem.Paciente     := FieldValues['paciente'];
+               vItem.Observacao   := FieldValues['observacao'];
+               vItem.Total        := FieldValues['total'];
+
+               pFarmaPesq.OLstFarma.Add(vItem);
+
+               Next;
+            end;
+         end;
+      end;
+
+      Result := True;
+   except
+      on E:Exception do
+      begin
+         Writeln(E.ClassName, ': ', E.Message);
+         pFarmaPesq.Aviso := E.ClassName+' - '+E.Message;
+      end;
    end;
 end;
 

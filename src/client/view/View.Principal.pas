@@ -4,13 +4,31 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls, Vcl.Buttons, EGrad, Vcl.WinXPickers;
 
 type
-  TForm1 = class(TForm)
-    Memo1: TMemo;
-    Button1: TButton;
-    procedure Button1Click(Sender: TObject);
+  TfPrincipal = class(TForm)
+    EvGradient5: TEvGradient;
+    Bevel6: TBevel;
+    btConfiguracao: TSpeedButton;
+    btPesquisar: TSpeedButton;
+    btInserir: TSpeedButton;
+    Panel1: TPanel;
+    gLista: TDBGrid;
+    gbConfig: TGroupBox;
+    aEndereco: TStaticText;
+    aPorta: TStaticText;
+    Label1: TLabel;
+    Label2: TLabel;
+    gbPesquisa: TGroupBox;
+    dpInicio: TDatePicker;
+    dpFinal: TDatePicker;
+    Label3: TLabel;
+    Label4: TLabel;
+    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure btConfiguracaoClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -18,45 +36,38 @@ type
   end;
 
 var
-  Form1: TForm1;
+  fPrincipal: TfPrincipal;
 
 implementation
 
-uses Model.Farma, System.JSON, Data.DBXJSONReflect, Model.FarmaBase;
+uses Utils.Farma, View.Configuracao;
 
 {$R *.dfm}
 
-procedure TForm1.Button1Click(Sender: TObject);
-var vFarma: TModelFarma;
-    vItem: TModelItensFarmaBase;
-    vMar: TJSONMarshal;
-    vJObj: TJSONObject;
+procedure TfPrincipal.btConfiguracaoClick(Sender: TObject);
 begin
-   try
-      vFarma := TModelFarma.Create;
-      vFarma.DataHora := Now;
-      vFarma.Farmaceutico := 'Eu';
-      vFarma.Paciente := 'Nos';
-      vFarma.Observacao := 'teste';
-      vFarma.Total := 10;
+   fConfiguracao := TfConfiguracao.Create(Self);
+   fConfiguracao.ShowModal;
 
-      vItem := TModelItensFarmaBase.Create;
-      vItem.Tipo := 1;
-      vItem.NTipo := 'seila';
-      vItem.Descricao := 'hahahah';
-      vItem.Total := 10;
+   Self.FormShow(Self);
+end;
 
-      vFarma.OLstAtencao.Add(vItem);
+procedure TfPrincipal.FormCreate(Sender: TObject);
+begin
+//
+end;
 
-      vMar := TJSONMarshal.Create;
-      vJObj := vMar.Marshal(vFarma) as TJSONObject;
+procedure TfPrincipal.FormDestroy(Sender: TObject);
+begin
+//
+end;
 
-      Memo1.Clear;
-      Memo1.Lines.Add(vJObj.ToJSON);
-   finally
-      vFarma.Free;
-      vMar.Free;
-   end;
+procedure TfPrincipal.FormShow(Sender: TObject);
+begin
+   aEndereco.Caption := LeIni('Farma', 'Geral', 'Endereco', ftString, '127.0.0.1');
+   aPorta.Caption    := LeIni('Farma', 'Geral', 'Porta', ftInteger, 9000);
+   dpInicio.Date     := Date;
+   dpFinal.Date      := Date;
 end;
 
 end.
