@@ -14,10 +14,12 @@ Type
       FTotal: Double;
       FIdFarma: Integer;
       FAviso: string;
+      procedure SetNTipo(Value: string);
    public
+      function ValidaItem: string;
       property Id: Integer read FId write FId;
-      property Tipo: Integer read FTipo write FTipo;
-      property NTipo: string read FNTipo write FNTipo;
+      property Tipo: Integer read FTipo;
+      property NTipo: string read FNTipo write SetNTipo;
       property Descricao: string read FDescricao write FDescricao;
       property Total: Double read FTotal write FTotal;
       property IdFarma: Integer read FIdFarma write FIdFarma;
@@ -37,6 +39,9 @@ Type
    public
       constructor Create;
       destructor Destroy; override;
+
+      function ValidaFarma: string;
+      procedure SomaTotal;
 
       property Id: Integer read FId write FId;
       property DataHora: TDateTime read FDataHora write FDataHora;
@@ -66,7 +71,7 @@ Type
 
 implementation
 
-uses System.SysUtils;
+uses System.SysUtils, System.StrUtils;
 
 { TModelFarma }
 
@@ -81,6 +86,27 @@ begin
   inherited;
 end;
 
+procedure TModelFarmaBase.SomaTotal;
+var vItem: TModelItensFarmaBase;
+begin
+   Self.Total := 0;
+
+   for vItem in Self.OLstAtencao do
+      Self.Total := Self.Total + vItem.Total;
+end;
+
+function TModelFarmaBase.ValidaFarma: string;
+begin
+   Result := '';
+
+   if Trim(Farmaceutico) = '' then
+      Result := 'É necessário informar um Farmacêutico'
+   else if Trim(Paciente) = '' then
+      Result := 'É necessário informar um Paciente'
+   else if Total <= 0 then
+      Result := 'É necessário lançar uma ou mais atenções';
+end;
+
 { TModelFarmaPesquisaBase }
 
 constructor TModelFarmaPesquisaBase.Create;
@@ -92,6 +118,27 @@ destructor TModelFarmaPesquisaBase.Destroy;
 begin
    FreeAndNil(FOLstFarma);
   inherited;
+end;
+
+{ TModelItensFarmaBase }
+
+procedure TModelItensFarmaBase.SetNTipo(Value: string);
+begin
+   FNTipo := Value;
+
+   FTipo := LeftStr(NTipo, 1).ToInteger;
+end;
+
+function TModelItensFarmaBase.ValidaItem: string;
+begin
+   Result := '';
+
+   if NTipo = '' then
+      Result := 'É necessário selecionar um tipo'
+   else if Descricao = '' then
+      Result := 'É necessário informar uma descrição'
+   else if Total <= 0 then
+      Result := 'Valor não pode ser menor ou igual a zero';
 end;
 
 end.

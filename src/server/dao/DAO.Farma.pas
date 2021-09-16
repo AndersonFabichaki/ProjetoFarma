@@ -2,7 +2,7 @@ unit DAO.Farma;
 
 interface
 
-uses Model.Farma, Model.FarmaBase;
+uses Model.Farma, Model.FarmaBase, System.JSON;
 
 Type
    iFarmaDAO = interface
@@ -11,6 +11,8 @@ Type
       function Alterar(pFarma: TModelFarma): Boolean;
       function Deletar(pIdFarma: Integer; out pAvso: string): Boolean;
       function Consultar(pFarmaPesq: TModelFarmaPesquisa): Boolean;
+      function CarregarAtencoes(pJsonArray: TJSONArray; out vAviso: string): Boolean;
+      function ConsultarID(pFarma: TModelFarma): Boolean;
    end;
 
    TFarmaDAO = class(TInterfacedObject, iFarmaDAO)
@@ -27,6 +29,8 @@ Type
       function Alterar(pFarma: TModelFarma): Boolean;
       function Deletar(pIdFarma: Integer; out pAvso: string): Boolean;
       function Consultar(pFarmaPesq: TModelFarmaPesquisa): Boolean;
+      function CarregarAtencoes(pJsonArray: TJSONArray; out vAviso: string): Boolean;
+      function ConsultarID(pFarma: TModelFarma): Boolean;
    end;
 
 implementation
@@ -91,6 +95,39 @@ begin
    end;
 end;
 
+function TFarmaDAO.CarregarAtencoes(pJsonArray: TJSONArray; out vAviso: string): Boolean;
+begin
+   Result := False;
+
+   try
+      with dmGeral.sqQry, SQL do
+      begin
+         Close;
+         Clear;
+         Add('select id||'' - ''||descricao as descricao from atc_farma');
+         Open;
+
+         if not IsEmpty then
+         begin
+            while not Eof do
+            begin
+               pJsonArray.AddElement(TJSONObject.Create(TJSONPair.Create('descricao', FieldValues['descricao'])));
+
+               Next;
+            end;
+         end;
+      end;
+
+      Result := True;
+   except
+      on E:Exception do
+      begin
+         Writeln(E.ClassName, ': ', E.Message);
+         vAviso := E.ClassName+' - '+E.Message;
+      end;
+   end;
+end;
+
 function TFarmaDAO.Consultar(pFarmaPesq: TModelFarmaPesquisa): Boolean;
 var vItem: TModelFarmaBase;
 begin
@@ -117,7 +154,7 @@ begin
             begin
                vItem := TModelFarmaBase.Create;
                vItem.Id           := FieldValues['id'];
-               vItem.DataHora     := FieldValues['data_hora'];
+               vItem.DataHora     := StrToDateTime(FieldValues['data_hora']);
                vItem.Farmaceutico := FieldValues['farmaceutico'];
                vItem.Paciente     := FieldValues['paciente'];
                vItem.Observacao   := FieldValues['observacao'];
@@ -136,6 +173,67 @@ begin
       begin
          Writeln(E.ClassName, ': ', E.Message);
          pFarmaPesq.Aviso := E.ClassName+' - '+E.Message;
+      end;
+   end;
+end;
+
+function TFarmaDAO.ConsultarID(pFarma: TModelFarma): Boolean;
+var vItem: TModelItensFarmaBase;
+begin
+   Result := False;
+   pFarma.OLstAtencao.Clear;
+
+   try
+      with dmGeral.sqQry, SQL do
+      begin
+         Close;
+         Clear;
+         Add('select id, data_hora, farmaceutico, paciente');
+         Add(', observacao, total');
+         Add(' from svc_farma f');
+         Add(' where id='+IntToStr(pFarma.Id));
+         Open;
+
+         if not IsEmpty then
+         begin
+            pFarma.DataHora     := StrToDateTime(FieldValues['data_hora']);
+            pFarma.Farmaceutico := FieldValues['farmaceutico'];
+            pFarma.Paciente     := FieldValues['paciente'];
+            pFarma.Observacao   := FieldValues['observacao'];
+            pFarma.Total        := FieldValues['total'];
+
+            Close;
+            Clear;
+            Add('select i.id, i.descricao, i.total, i.tipo||'' - ''||a.descricao as ntipo');
+            Add(', i.idfarma');
+            Add(' from svc_itensfarma i');
+            Add('   left join atc_farma a on (a.id=i.tipo)');
+            Add(' where idfarma='+IntToStr(pFarma.Id));
+            Add(' order by i.id');
+            Open;
+
+            while not Eof do
+            begin
+               vItem := TModelItensFarmaBase.Create;
+               vItem.Id        := FieldValues['id'];
+               vItem.NTipo     := FieldValues['ntipo'];
+               vItem.Descricao := FieldValues['descricao'];
+               vItem.Total     := FieldValues['total'];
+               vItem.IdFarma   := FieldValues['idfarma'];
+
+               pFarma.OLstAtencao.Add(vItem);
+
+               Next;
+            end;
+         end;
+      end;
+
+      Result := True;
+   except
+      on E:Exception do
+      begin
+         Writeln(E.ClassName, ': ', E.Message);
+         pFarma.Aviso := E.ClassName+' - '+E.Message;
       end;
    end;
 end;

@@ -15,6 +15,7 @@ type
     Label2: TLabel;
     procedure FormShow(Sender: TObject);
     procedure btGravarClick(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -36,6 +37,15 @@ begin
    GravaIni('Farma', 'Geral', 'Porta', ftInteger, LimpaInteiro(edPorta.Text));
 
    Close;
+end;
+
+procedure TfConfiguracao.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+   if key=#13 then
+   begin
+      key:=#0;
+      Perform(wm_nextDlgCtl,0,0);
+   end;
 end;
 
 procedure TfConfiguracao.FormShow(Sender: TObject);

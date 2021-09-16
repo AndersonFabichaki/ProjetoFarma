@@ -9,22 +9,26 @@ procedure Consultar(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 procedure Alterar(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 procedure Inserir(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 procedure Deletar(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+procedure ConsultarID(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+procedure Atencao(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
 procedure EmExecucao(Horse: THorse);
 
 implementation
 
-uses Model.Farma, System.JSON, Data.DBXJSONReflect;
+uses Model.Farma, System.JSON, Data.DBXJSONReflect, DAO.Farma;
 
 procedure Registry;
 begin
    THorse.Use(Jhonson());
 
    THorse
-      .Get('/Farma', Consultar)
+      .Put('/Farma/Consultar', Consultar)
       .Post('/Farma', Alterar)
       .Put('/Farma', Inserir)
-      .Delete('/Farma/:pId', Deletar);
+      .Get('/Farma/:pId', ConsultarID)
+      .Delete('/Farma/:pId', Deletar)
+      .Get('/Atencao', Atencao);
 
    THorse.Host := '127.0.0.1';
    THorse.Port := 9000;
@@ -45,7 +49,7 @@ begin
 
       vFarmaPesq := vUnMarshal.Unmarshal(vJReq) as TModelFarmaPesquisa;
 
-      if vFarmaPesq.Consultar then
+      if TFarmaDAO.New.Consultar(vFarmaPesq) then
       begin
          vJRes:=TJSONObject.Create;
          vJRes.AddPair('Codigo', TJSONNumber.Create(1));
@@ -78,7 +82,7 @@ begin
 
       vFarma := vUnMarshal.Unmarshal(vJReq) as TModelFarma;
 
-      if vFarma.Alterar then
+      if TFarmaDAO.New.Alterar(vFarma) then
       begin
          vJRes:=TJSONObject.Create;
          vJRes.AddPair('Codigo', TJSONNumber.Create(1));
@@ -110,7 +114,7 @@ begin
 
       vFarma := vUnMarshal.Unmarshal(vJReq) as TModelFarma;
 
-      if vFarma.Gravar then
+      if TFarmaDAO.New.Gravar(vFarma) then
       begin
          vJRes:=TJSONObject.Create;
          vJRes.AddPair('Codigo', TJSONNumber.Create(1));
@@ -141,7 +145,7 @@ begin
       vJRes.AddPair('Codigo', TJSONNumber.Create(0));
       vJRes.AddPair('Mensagem', 'Params pId não localizado');
    end
-   else if TModelFarma.Deletar(Req.Params.Items['pId'].ToInteger, vAviso) then
+   else if TFarmaDAO.New.Deletar(Req.Params.Items['pId'].ToInteger, vAviso) then
    begin
       vJRes.AddPair('Codigo', TJSONNumber.Create(1));
       vJRes.AddPair('Mensagem', 'Registro excluído com sucesso!');
@@ -153,6 +157,65 @@ begin
    end;
 
    Res.Send<TJSONValue>(vJRes).Status(THTTPStatus.OK);
+end;
+
+procedure ConsultarID(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var vFarma: TModelFarma;
+    vJRes: TJSONObject;
+    vMarshal: TJSONMarshal;
+begin
+   try
+      vJRes := TJSONObject.Create;
+
+      vMarshal   := TJSONMarshal.Create;
+
+      vFarma := TModelFarma.Create;
+
+      if not Req.Params.ContainsKey('pId') then
+         vFarma.Id := 0
+      else
+         vFarma.Id := Req.Params.Items['pId'].ToInteger;
+
+      if TFarmaDAO.New.ConsultarID(vFarma) then
+      begin
+         vJRes.AddPair('Codigo', TJSONNumber.Create(1));
+         vJRes.AddPair('Result', TJSONArray.Create(vMarshal.Marshal(vFarma) as TJSONObject));
+      end
+      else
+      begin
+         vJRes.AddPair('Codigo', TJSONNumber.Create(0));
+         vJRes.AddPair('Mensagem', vFarma.Aviso);
+      end;
+
+      Res.Send<TJSONValue>(vJRes).Status(THTTPStatus.OK);
+   finally
+      vMarshal.Free;
+   end;
+end;
+
+procedure Atencao(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var vJArray: TJSONArray;
+    vJRes: TJSONObject;
+    vAvso: string;
+begin
+   try
+      vJRes:=TJSONObject.Create;
+      vJArray := TJSONArray.Create;
+
+      if TFarmaDAO.New.CarregarAtencoes(vJArray, vAvso) then
+      begin
+         vJRes.AddPair('Codigo', TJSONNumber.Create(1));
+         vJRes.AddPair('Result', vJArray);
+      end
+      else
+      begin
+         vJRes.AddPair('Codigo', TJSONNumber.Create(0));
+         vJRes.AddPair('Mensagem', vAvso);
+      end;
+
+      Res.Send<TJSONValue>(vJRes).Status(THTTPStatus.OK);
+   finally
+   end;
 end;
 
 procedure EmExecucao(Horse: THorse);

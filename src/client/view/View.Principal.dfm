@@ -5,7 +5,7 @@ object fPrincipal: TfPrincipal
   BorderStyle = bsSingle
   Caption = 'PROJETO FARMA'
   ClientHeight = 475
-  ClientWidth = 721
+  ClientWidth = 930
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,19 +23,17 @@ object fPrincipal: TfPrincipal
   object EvGradient5: TEvGradient
     Left = 0
     Top = 0
-    Width = 721
+    Width = 930
     Height = 32
     Align = alTop
     BeginColor = 15790320
     Direction = fdRightToLeft
     EndColor = 14342874
-    ExplicitLeft = -283
-    ExplicitTop = 177
-    ExplicitWidth = 1004
+    ExplicitWidth = 721
     object Bevel6: TBevel
       Left = 0
       Top = 30
-      Width = 721
+      Width = 930
       Height = 2
       Align = alBottom
       ExplicitLeft = 8
@@ -43,7 +41,7 @@ object fPrincipal: TfPrincipal
       ExplicitWidth = 50
     end
     object btConfiguracao: TSpeedButton
-      Left = 592
+      Left = 801
       Top = 0
       Width = 129
       Height = 30
@@ -170,6 +168,7 @@ object fPrincipal: TfPrincipal
       ParentFont = False
       Spacing = 6
       OnClick = btConfiguracaoClick
+      ExplicitLeft = 592
     end
     object btPesquisar: TSpeedButton
       Left = 0
@@ -298,6 +297,7 @@ object fPrincipal: TfPrincipal
       NumGlyphs = 2
       ParentFont = False
       Spacing = 6
+      OnClick = btPesquisarClick
       ExplicitLeft = 210
       ExplicitHeight = 28
     end
@@ -427,21 +427,41 @@ object fPrincipal: TfPrincipal
       NumGlyphs = 2
       ParentFont = False
       Spacing = 6
+      OnClick = btInserirClick
     end
   end
   object Panel1: TPanel
     Left = 0
     Top = 32
-    Width = 721
+    Width = 930
     Height = 113
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 721
+    object Label5: TLabel
+      Left = 4
+      Top = 91
+      Width = 501
+      Height = 16
+      Caption = 
+        'Para excluir ou alterar os registros, op'#231#227'o com bot'#227'o direito em' +
+        ' cima da grid.'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
     object gbConfig: TGroupBox
-      Left = 528
-      Top = 4
+      AlignWithMargins = True
+      Left = 735
+      Top = 3
       Width = 185
-      Height = 105
+      Height = 107
+      Margins.Right = 10
+      Align = alRight
       Caption = 'Configura'#231#245'es do Sistema'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -450,9 +470,12 @@ object fPrincipal: TfPrincipal
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
+      ExplicitLeft = 528
+      ExplicitTop = 4
+      ExplicitHeight = 105
       DesignSize = (
         185
-        105)
+        107)
       object Label1: TLabel
         Left = 8
         Top = 19
@@ -590,14 +613,34 @@ object fPrincipal: TfPrincipal
   object gLista: TDBGrid
     Left = 0
     Top = 145
-    Width = 721
+    Width = 930
     Height = 330
     Align = alClient
+    BorderStyle = bsNone
+    DataSource = dsLista
+    Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+    PopupMenu = pmLista
     TabOrder = 2
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
+  end
+  object dsLista: TDataSource
+    Left = 352
+    Top = 240
+  end
+  object pmLista: TPopupMenu
+    Left = 456
+    Top = 240
+    object btAlterar: TMenuItem
+      Caption = 'Alterar'
+      OnClick = btAlterarClick
+    end
+    object btExcluir: TMenuItem
+      Caption = 'Excluir'
+      OnClick = btExcluirClick
+    end
   end
 end
