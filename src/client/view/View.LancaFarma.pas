@@ -3,17 +3,13 @@ unit View.LancaFarma;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.ExtCtrls, EGrad, Controllers.Farma, Vcl.StdCtrls,
   Vcl.WinXPickers, Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.Menus, Vcl.Mask, RxToolEdit, RxCurrEdit,
-  DataSnap.DBClient;
+  DataSnap.DBClient, System.Classes, sMaskEdit, sCustomComboEdit, sCurrEdit, sCurrencyEdit;
 
 type
   TfLancaFarma = class(TForm)
-    EvGradient5: TEvGradient;
-    Bevel6: TBevel;
-    btGravar: TSpeedButton;
-    btAbandonar: TSpeedButton;
     Panel1: TPanel;
     dpInicio: TDatePicker;
     edFarmaceutico: TEdit;
@@ -35,9 +31,12 @@ type
     Label1: TLabel;
     Label6: TLabel;
     Label7: TLabel;
-    ceValor: TCurrencyEdit;
     btInserir: TSpeedButton;
     Label8: TLabel;
+    Panel4: TPanel;
+    btAbandonar: TSpeedButton;
+    btGravar: TSpeedButton;
+    ceValor: TsCurrencyEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);

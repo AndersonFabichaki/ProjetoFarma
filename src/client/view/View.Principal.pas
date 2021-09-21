@@ -9,11 +9,6 @@ uses
 
 type
   TfPrincipal = class(TForm)
-    EvGradient5: TEvGradient;
-    Bevel6: TBevel;
-    btConfiguracao: TSpeedButton;
-    btPesquisar: TSpeedButton;
-    btInserir: TSpeedButton;
     Panel1: TPanel;
     gLista: TDBGrid;
     gbConfig: TGroupBox;
@@ -31,6 +26,10 @@ type
     pmLista: TPopupMenu;
     btAlterar: TMenuItem;
     btExcluir: TMenuItem;
+    Panel2: TPanel;
+    btPesquisar: TSpeedButton;
+    btInserir: TSpeedButton;
+    btConfiguracao: TSpeedButton;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
